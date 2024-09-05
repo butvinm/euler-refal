@@ -1,0 +1,28 @@
+*$FROM LibraryEx
+$EXTERN Prout, Reduce;
+
+
+$ENTRY Go
+{
+    = <Prout
+        <Reduce
+            {
+                s.Acc s.N, <Mod s.N 3> : 0 = <Add s.Acc s.N>;
+                s.Acc s.N, <Mod s.N 5> : 0 = <Add s.Acc s.N>;
+                s.Acc s._ = s.Acc;
+            }
+            0 <Range 1 999 1>
+        >
+    >;
+}
+
+
+Range {
+    s.Start s.End s.Step = <DoRange () s.Start s.End s.Step>
+}
+
+
+DoRange {
+    (e.Acc) s.Start s.End s.Step, <Compare s.Start s.End> : '+' = e.Acc;
+    (e.Acc) s.Start s.End s.Step = <DoRange (e.Acc s.Start) <Add s.Start s.Step> s.End s.Step>
+}
