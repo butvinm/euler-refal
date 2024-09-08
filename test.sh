@@ -21,6 +21,11 @@ done < Solutions.md
 
 # Iterate through each solution file in the solutions directory
 for solution_file in solutions/*.ref; do
+    # Skip Generators.ref
+    if [[ "$solution_file" == "solutions/Generators.ref" ]]; then
+        continue
+    fi
+
     # Extract problem ID from the file name
     problem_id=$(basename "$solution_file" .ref)
 
@@ -28,7 +33,9 @@ for solution_file in solutions/*.ref; do
 
     # Check if there's an expected answer for this problem ID
     if [[ -n "${solutions[$problem_id]}" ]]; then
-        rlc --rich -o build/$problem_id "$solution_file" > /dev/null
+        # rlc --rich -o build/$problem_id "$solution_file" > /dev/null
+        rlmake --dont-keep-rasls -d solutions "$solution_file" -o build/$problem_id > /dev/null
+
         ans=$(./build/$problem_id)
         trimmed_ans=$(trim_whitespace "$ans")
         expected_answer=${solutions[$problem_id]}

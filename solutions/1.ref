@@ -1,28 +1,31 @@
+/*
+If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
+Find the sum of all the multiples of 3 or 5 below 1000.
+*/
+
 *$FROM LibraryEx
-$EXTERN Prout, Reduce;
+$EXTERN Prout;
+
+*$FROM Generators.ref
+$EXTERN Gen-Range, Gen-Reduce, Gen-Filter;
 
 
-$ENTRY Go
-{
-    = <Prout
-        <Reduce
-            {
-                s.Acc s.N, <Mod s.N 3> : 0 = <Add s.Acc s.N>;
-                s.Acc s.N, <Mod s.N 5> : 0 = <Add s.Acc s.N>;
-                s.Acc s._ = s.Acc;
-            }
-            0 <Range 1 999 1>
-        >
-    >;
+$ENTRY Go {
+  = <Prout <SumOf3Or5Multiples>>;
 }
 
 
-Range {
-    s.Start s.End s.Step = <DoRange () s.Start s.End s.Step>
-}
-
-
-DoRange {
-    (e.Acc) s.Start s.End s.Step, <Compare s.Start s.End> : '+' = e.Acc;
-    (e.Acc) s.Start s.End s.Step = <DoRange (e.Acc s.Start) <Add s.Start s.Step> s.End s.Step>
+SumOf3Or5Multiples {
+  = <Gen-Reduce
+    &Add
+    0
+    <Gen-Filter
+      {
+        s.N, <Mod s.N 3> : 0 = True;
+        s.N, <Mod s.N 5> : 0 = True;
+        s._ = False;
+      }
+      <Gen-Range 1 1000>
+    >
+  >
 }
