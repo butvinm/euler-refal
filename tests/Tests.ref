@@ -1,0 +1,43 @@
+*$FROM LibraryEx
+$EXTERN LoadFile;
+
+
+*$FROM lib/Tasty
+$EXTERN RunTests, Test;
+
+
+*$FROM solutions/22/TailRec
+$EXTERN TailRecSolution-22;
+
+
+*$FROM solutions/9/TailRec
+$EXTERN TailRecSolution-9;
+
+
+*$FROM solutions/9/Lazy
+$EXTERN LazySolution-9;
+
+
+$ENTRY Go {
+  = <RunTests
+    <Test-9>
+    <Test-22>
+  >;
+}
+
+Answer-9 { = 31875000 }
+
+
+Test-9 {
+  = <Test ('TailRecSolution-9') (&TailRecSolution-9) <Answer-9>>
+    <Test ('LazySolution-9') (&LazySolution-9) <Answer-9>>;
+}
+
+
+Answer-22 { = 871198282 }
+
+
+Test-22 {
+  = <LoadFile 'solutions/22/0022_names.txt'> : (e.NamesStr)
+  = <Test ('TailRecSolution-22') (&TailRecSolution-22 e.NamesStr) <Answer-22>>;
+}
