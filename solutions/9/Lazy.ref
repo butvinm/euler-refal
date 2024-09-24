@@ -1,0 +1,57 @@
+*$FROM LibraryEx
+$EXTERN UnBracket, Fetch;
+
+
+*$FROM lib/Generators
+$EXTERN Gen-Iter, Gen-Range, Gen-Map, Gen-DropWhile, Gen-TakeWhile, Gen-Pipe, Gen-Take;
+
+
+$ENTRY LazySolution {
+  = <TakeAnswer> : t.A t.B t.C
+  = <Mul <Mul t.A t.B> t.C>;
+}
+
+
+/* Takes first suitable answer (a^2 + b^2 = c^2) */
+TakeAnswer {
+  = <Gen-Take
+    <Gen-DropWhile
+      {
+        t.A t.B t.C, <Compare <Add <Sqr t.A> <Sqr t.B>> <Sqr t.C>> : '0' = False;
+        t.A t.B t.C = True;
+      }
+      <GenVariants>
+    >
+  >;
+}
+
+
+/* Generate sequence of a, b, c which satisfy a + b + c = 1000
+
+Equivalent to
+```
+for a in range(0, 333 + 1):
+    for b in range(a + 1, 1000 - a):
+        c = 1000 - b - a
+        yield a, b, c
+```
+*/
+GenVariants {
+  = <Fetch
+    <Gen-Pipe
+      { = <Gen-Range 1 334> }
+      {
+        t.A =
+          <Gen-Map
+            { t.B = t.A t.B <Sub 1000 <Add t.A t.B>> }
+            <Gen-Range <Add t.A 1> <Sub 1000 t.A>>
+          >;
+      }
+    >
+  >;
+}
+
+
+Sqr {
+  s.A = <Mul s.A s.A>;
+}

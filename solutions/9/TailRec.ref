@@ -1,0 +1,58 @@
+$ENTRY TailRecSolution {
+  /* a < b < c, so a is at most (1000 - 3)/3 = 333 */
+  = <TailRecSolution-A 333> : {
+    None = None;
+    s.A s.B s.C = <Mul <Mul s.A s.B> s.C>;
+  };
+}
+
+
+TailRecSolution-A {
+  s.A, s.A : 0 = None;
+
+  /* a < b < c, so b is at most (1000 - 1) - a */
+  s.A
+    = <TailRecSolution-B s.A <Sub 999 s.A>> : {
+      None = <TailRecSolution-A <Sub s.A 1>>;
+      e.Result = e.Result;
+    };
+}
+
+
+TailRecSolution-B {
+  s.A s.B, s.B : 0 = None;
+
+  s.A s.B
+    = <Sub 1000 <Add s.A s.B>> : s.C
+    = <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.C>> : {
+      '0' = s.A s.B s.C;
+      s._ = <TailRecSolution-B s.A <Sub s.B 1>>;
+    };
+}
+
+
+Sqr {
+  s.A = <Mul s.A s.A>;
+}
+
+/*
+Why it is tail recursion?
+
+This is how Refal machine scope would look like after each step of the computation:
+
+<TailRecSolution>
+<TailRecSolution-A 333>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A <Sub 999 s.A>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A <Sub 999 s.A>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ s.C = <{ '0' = s.A s.B s.C; s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.>C>>>} <Sub 1000 <Add s.A s.B>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ s.C = <{ '0' = s.A s.B s.C; s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.>C>>>} (1000-s.A-s.B)>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr >(1000-s.A-s.B)>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare (s.A^2 + s.B^2) (1000-s.A-s.B)>^2>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } CompareRes>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A (s.B-1)>>
+...
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } None>
+<TailRecSolution-A 332>>
+
+So, we end up with a induction step in the tail position of the recursive call.
+*/
