@@ -6,10 +6,6 @@ $EXTERN LoadFile;
 $EXTERN RunTests, Test;
 
 
-*$FROM solutions/22/TailRec
-$EXTERN TailRecSolution-22;
-
-
 *$FROM solutions/9/TailRec
 $EXTERN TailRecSolution-9;
 
@@ -18,12 +14,21 @@ $EXTERN TailRecSolution-9;
 $EXTERN LazySolution-9;
 
 
+*$FROM solutions/22/TailRec
+$EXTERN TailRecSolution-22;
+
+
+*$FROM solutions/22/MapReduce
+$EXTERN MapReduceSolution-22;
+
+
 $ENTRY Go {
   = <RunTests
     <Test-9>
     <Test-22>
   >;
 }
+
 
 Answer-9 { = 31875000 }
 
@@ -39,5 +44,6 @@ Answer-22 { = 871198282 }
 
 Test-22 {
   = <LoadFile 'solutions/22/0022_names.txt'> : (e.NamesStr)
-  = <Test ('TailRecSolution-22') (&TailRecSolution-22 e.NamesStr) <Answer-22>>;
+  = <Test ('TailRecSolution-22') (&TailRecSolution-22 e.NamesStr) <Answer-22>>
+    <Test ('MapReduceSolution-22') (&MapReduceSolution-22 e.NamesStr) <Answer-22>>;
 }
