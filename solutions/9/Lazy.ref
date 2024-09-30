@@ -7,7 +7,8 @@ $EXTERN Gen-Iter, Gen-Range, Gen-Map, Gen-DropWhile, Gen-TakeWhile, Gen-Pipe, Ge
 
 
 $ENTRY LazySolution-9 {
-  = <TakeAnswer> : t.A t.B t.C
+  = <TakeAnswer> : t.Answer
+  = <Gen-Iter t.Answer> : (t.A t.B t.C)
   = <Mul <Mul t.A t.B> t.C>;
 }
 
