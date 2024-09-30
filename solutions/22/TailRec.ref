@@ -1,0 +1,153 @@
+$ENTRY TailRecSolution-22 {
+  e.NamesStr
+    = <Split ',' e.NamesStr> : e.Names
+    = <StripQuotes e.Names> : e.Names^
+    = <CalculateTotalScore e.Names>;
+}
+
+
+CalculateTotalScore {
+  e.Names
+    = <LexSort e.Names> : e.Names^
+    = <CollectPosAndScores e.Names> : e.PosAndScores
+    = <SumScores e.PosAndScores>;
+}
+
+
+CollectPosAndScores {
+  e.Names = <DoCollectPosAndScores 1 e.Names>;
+}
+
+
+DoCollectPosAndScores {
+  t.Pos /* empty */ = /* empty */;
+  t.Pos (e.Name) e.Names = (t.Pos <LexScore e.Name>) <DoCollectPosAndScores <Add t.Pos 1> e.Names>;
+}
+
+
+SumScores {
+  e.PosAndScores = <DoSumScores 0 e.PosAndScores>;
+}
+
+
+DoSumScores {
+  t.Acc /* empty */ = t.Acc;
+  t.Acc (t.Pos t.Score) e.PosAndScores = <DoSumScores <Add t.Acc <Mul t.Score t.Pos>> e.PosAndScores>;
+}
+
+
+/* Quick sort algorithm cowardly stollen from the Haskell documentation
+
+It is tail recursion:
+
+<LexSort (MARY)(PATRICIA)(LINDA)>
+<{ e.Less = <{ e.Greater = <LexSort e.Less> (MARY) <LexSort e.Greater> } <FilterGreater (MARY) e.Names>> } <FilterLess (MARY) e.Names>>
+<{ e.Less = <{ e.Greater = <LexSort e.Less> (MARY) <LexSort e.Greater> } <FilterGreater (MARY) e.Names>> } (LINDA)>
+<{ e.Greater = <LexSort (LINDA)> (MARY) <LexSort e.Greater> } <FilterGreater (MARY) e.Names>>
+<{ e.Greater = <LexSort (LINDA)> (MARY) <LexSort e.Greater> } (PATRICIA)>
+<LexSort (LINDA)> (MARY) <LexSort (PATRICIA)>
+(LINDA) (MARY) <LexSort (PATRICIA)>
+(LINDA) (MARY) (PATRICIA)
+*/
+LexSort {
+  /* empty */ = /* empty */;
+  (e.Name) e.Names
+    = <FilterLess (e.Name) e.Names> : e.Less
+    = <FilterGreater (e.Name) e.Names> : e.Greater
+    = <LexSort e.Less> (e.Name) <LexSort e.Greater>;
+}
+
+
+/*
+'-' - Word0 comes before Word1
+'+' - Word0 comes after Word1
+'0' - Words are equal
+
+It is tail recursion:
+
+<LexCompare 'Haskell' 'Happiness'>
+<{ '-' = True; '+' = False; '0' = <LexCompare e.Word0 e.Word1>; } <Compare <Ord 'H'> <Ord 'H'>>>
+<{ '-' = True; '+' = False; '0' = <LexCompare e.Word0 e.Word1>; } '0'>
+<LexCompare 'askell' 'appiness'>
+
+so at each step length of the words decreases by 1 and recursion is induced
+*/
+LexCompare {
+  (/* empty */) /* empty */ = '0';
+  (s.C e.Word0) /* empty */ = '+';
+  (/* empty */) s.C e.Word1 = '-';
+  (s.C0 e.Word0) s.C1 e.Word1
+    = <Compare <Ord s.C0> <Ord s.C1>> : {
+      '0' = <LexCompare (e.Word0) e.Word1>;
+      s.R = s.R;
+    };
+}
+
+
+GetAlphabeticNumber {
+  s.C = <Sub <Ord s.C> 64>; /* A = 65, but we should start from 1, so 64 */
+}
+
+
+/* "Classical" tail recursion with accumulator */
+LexScore {
+  e.Word = <DoLexScore 0 e.Word>;
+}
+
+
+DoLexScore {
+  t.Acc /* empty */ = t.Acc;
+  t.Acc s.C e.Word = <DoLexScore <Add t.Acc <GetAlphabeticNumber s.C>> e.Word>;
+}
+
+
+FilterLess {
+  (e.Name) /* empty */ = /* empty */;
+  (e.Name) (e.Other) e.Names
+    = <LexCompare (e.Other) e.Name> : {
+      '-' = (e.Other) <FilterLess (e.Name) e.Names>;
+      s._ = <FilterLess (e.Name) e.Names>;
+    };
+}
+
+
+FilterGreater {
+  (e.Name) /* empty */ = /* empty */;
+  (e.Name) (e.Other) e.Names
+    = <LexCompare (e.Other) e.Name> : {
+      '-' = <FilterGreater (e.Name) e.Names>;
+      s._ = (e.Other) <FilterGreater (e.Name) e.Names>;
+    };
+}
+
+
+/*
+It is tail recursion:
+
+<StripQuotes '"A" "B" "C" "D" "E" "F"'>
+('A') <StripQuotes '"B" "C" "D" "E" "F"'>
+('A') ('B') <StripQuotes '"C" "D" "E" "F"'>
+...
+('A') ('B') ('C') ('D') ('E') <StripQuotes '"F"'>
+('A') ('B') ('C') ('D') ('E') ('F')
+*/
+StripQuotes {
+  /* empty */ = /* empty */;
+  ('"' e.Name '"') e.Names = (e.Name) <StripQuotes e.Names>;
+}
+
+/*
+It is tail recursion:
+
+<Split ' ' 'A B C D E F'>
+('A') <Split ' ' 'B C D E F'>
+('A') ('B') <Split ' ' 'C D E F'>
+...
+('A') ('B') ('C') ('D') ('E') <Split 'F'>
+('A') ('B') ('C') ('D') ('E') ('F')
+*/
+Split {
+  s.Delim /* empty */ = /* empty */;
+  s.Delim e.B s.Delim e.E = (e.B) <Split s.Delim e.E>;
+  s.Delim e.B /* empty */ = (e.B);
+}

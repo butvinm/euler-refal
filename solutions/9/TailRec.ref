@@ -1,4 +1,4 @@
-$ENTRY TailRecSolution {
+$ENTRY TailRecSolution-9 {
   /* a < b < c, so a is at most (1000 - 3)/3 = 333 */
   = <TailRecSolution-A 333> : {
     None = None;

@@ -1,0 +1,123 @@
+*$FROM LibraryEx
+$EXTERN Reduce, Map, UnBracket;
+
+
+$ENTRY MapReduceSolution-22 {
+  e.NamesStr
+    = <Split ',' e.NamesStr> : e.Names
+    = <Map &StripQuotes e.Names> : e.Names^
+    = <LexSort e.Names> : e.Names^
+    = <GetPosAndScores e.Names> : e.PS
+    = <CalculateTotalScore e.PS>;
+}
+
+
+CalculateTotalScore {
+  e.PS
+    = <Reduce
+      {
+        t.Score (t.Pos e.Score) = <Add t.Score <Mul t.Pos e.Score>>;
+      }
+      0
+      e.PS
+    >;
+}
+
+
+GetPosAndScores {
+  e.Names
+    = <Reduce
+      {
+        (t.Pos (e.PS)) e.Name = (<Add t.Pos 1> (e.PS (t.Pos <LexScore e.Name>)));
+      }
+      (1 ())
+      e.Names
+    > : {
+      (t._ (e.PS)) = e.PS;
+    };
+}
+
+
+LexScore {
+  (e.Name) = <Reduce
+    {
+      t.Score s.C = <Add t.Score <Sub <Ord s.C> 64>>;
+    }
+    0
+    e.Name
+  >;
+}
+
+
+LexSort {
+  /* empty */ = /* empty */;
+  (e.Name) e.Names
+    = <FilterLess (e.Name) e.Names> : e.Less
+    = <FilterGreater (e.Name) e.Names> : e.Greater
+    = <LexSort e.Less> (e.Name) <LexSort e.Greater>;
+}
+
+
+FilterLess {
+  (e.Name) e.Names = <UnBracket
+    <Reduce
+      {
+        (e.Acc) (e.Other) = <LexCompare (e.Other) e.Name> : {
+          '-' = (e.Acc (e.Other));
+          s._ = (e.Acc);
+        };
+      }
+      ()
+      e.Names
+    >
+  >;
+}
+
+
+FilterGreater {
+  (e.Name) e.Names = <UnBracket
+    <Reduce
+      {
+        (e.Acc) (e.Other) = <LexCompare (e.Other) e.Name> : {
+          '-' = (e.Acc);
+          s._ = (e.Acc (e.Other));
+        }
+      }
+      ()
+      e.Names
+    >
+  >;
+}
+
+
+LexCompare {
+  (/* empty */) /* empty */ = '0';
+  (s.C e.Word0) /* empty */ = '+';
+  (/* empty */) s.C e.Word1 = '-';
+  (s.C0 e.Word0) s.C1 e.Word1
+    = <Compare <Ord s.C0> <Ord s.C1>> : {
+      '0' = <LexCompare (e.Word0) e.Word1>;
+      s.R = s.R;
+    };
+}
+
+
+Split {
+  s.Delim e.Line = <UnBracket
+    <Reduce
+      {
+        (e.Acc) ',' = (e.Acc ());
+        (e.Acc (e.H)) s.C = (e.Acc (e.H s.C));
+        (e.Acc) s.C = (e.Acc (s.C));
+      }
+      ()
+      e.Line
+    >
+  >;
+}
+
+
+StripQuotes {
+  ('"' e.Name '"') = (e.Name);
+  (e.Name) = (e.Name);
+}
