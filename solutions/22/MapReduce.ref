@@ -1,3 +1,9 @@
+/*
+This solution utilizes functional alternatives to loops and conditionals like map and reduce alongside with modularity.
+
+The solution is divided into several steps: extract words, clean them, sort them, calculate the score and sum the scores.
+*/
+
 *$FROM LibraryEx
 $EXTERN Reduce, Map, UnBracket;
 
@@ -49,6 +55,7 @@ LexScore {
 }
 
 
+/* Quick sort algorithm cowardly stollen from the Haskell documentation */
 LexSort {
   /* empty */ = /* empty */;
   (e.Name) e.Names
