@@ -12,3 +12,11 @@ Run the test suite:
 ```bash
 sh tests/test.sh
 ```
+
+## Conclusion of the Refal-5λ language
+
+Refal-5λ allows to write expressive and consise code, especially when it comes to working with text or other concatenated data.
+But lack of standard library (even booleans are not built-in) forces to write a lot of boilerplate code.
+And without referential transparency and curring make code not such elegant as it could be in functional languages like Haskell or OCaml.
+But despite this, Refal-5λ has more powerful pattern matching and destructuring capabilities.
+And its computational model allows to write code without necessity to think about tail recursion and stack overflow.
