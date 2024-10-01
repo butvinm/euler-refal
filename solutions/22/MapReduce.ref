@@ -5,7 +5,7 @@ The solution is divided into several steps: extract words, clean them, sort them
 */
 
 *$FROM LibraryEx
-$EXTERN Reduce, Map, UnBracket;
+$EXTERN Reduce, Map, UnBracket, Apply;
 
 
 $ENTRY MapReduceSolution-22 {
@@ -59,39 +59,27 @@ LexScore {
 LexSort {
   /* empty */ = /* empty */;
   (e.Name) e.Names
-    = <FilterLess (e.Name) e.Names> : e.Less
-    = <FilterGreater (e.Name) e.Names> : e.Greater
+    = <Filter
+      { (e.Other) = <LexCompare (e.Other) e.Name> : { '-' = True; s._ = False; } }
+      e.Names
+    > : e.Less
+    = <Filter
+      { (e.Other) = <LexCompare (e.Other) e.Name> : { '-' = False; s._ = True; } }
+      e.Names
+    > : e.Greater
     = <LexSort e.Less> (e.Name) <LexSort e.Greater>;
 }
 
 
-FilterLess {
-  (e.Name) e.Names = <UnBracket
+Filter {
+  t.Pred e.List = <UnBracket
     <Reduce
       {
-        (e.Acc) (e.Other) = <LexCompare (e.Other) e.Name> : {
-          '-' = (e.Acc (e.Other));
-          s._ = (e.Acc);
-        };
+        (e.Acc) t.Item, <Apply t.Pred t.Item> : True = (e.Acc t.Item);
+        (e.Acc) t.Item = (e.Acc);
       }
       ()
-      e.Names
-    >
-  >;
-}
-
-
-FilterGreater {
-  (e.Name) e.Names = <UnBracket
-    <Reduce
-      {
-        (e.Acc) (e.Other) = <LexCompare (e.Other) e.Name> : {
-          '-' = (e.Acc);
-          s._ = (e.Acc (e.Other));
-        }
-      }
-      ()
-      e.Names
+      e.List
     >
   >;
 }
