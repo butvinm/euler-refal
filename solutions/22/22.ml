@@ -16,7 +16,7 @@ let lex_score word =
 let solve names_str =
   split_on_char ',' names_str
   |> List.map (fun name -> sub name 1 (length name - 2))
-  |> List.sort compare
+  |> List.sort String.compare
   |> List.mapi (fun i name -> (i + 1) * lex_score name)
   |> List.fold_left (+) 0
 
