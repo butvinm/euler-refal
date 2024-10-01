@@ -1,3 +1,7 @@
+/*
+This solution utilizes tail recursion and modularity to solve the problem.
+*/
+
 $ENTRY TailRecSolution-22 {
   e.NamesStr
     = <Split ',' e.NamesStr> : e.Names
@@ -36,19 +40,7 @@ DoSumScores {
 }
 
 
-/* Quick sort algorithm cowardly stollen from the Haskell documentation
-
-It is tail recursion:
-
-<LexSort (MARY)(PATRICIA)(LINDA)>
-<{ e.Less = <{ e.Greater = <LexSort e.Less> (MARY) <LexSort e.Greater> } <FilterGreater (MARY) e.Names>> } <FilterLess (MARY) e.Names>>
-<{ e.Less = <{ e.Greater = <LexSort e.Less> (MARY) <LexSort e.Greater> } <FilterGreater (MARY) e.Names>> } (LINDA)>
-<{ e.Greater = <LexSort (LINDA)> (MARY) <LexSort e.Greater> } <FilterGreater (MARY) e.Names>>
-<{ e.Greater = <LexSort (LINDA)> (MARY) <LexSort e.Greater> } (PATRICIA)>
-<LexSort (LINDA)> (MARY) <LexSort (PATRICIA)>
-(LINDA) (MARY) <LexSort (PATRICIA)>
-(LINDA) (MARY) (PATRICIA)
-*/
+/* Quick sort algorithm cowardly stollen from the Haskell documentation */
 LexSort {
   /* empty */ = /* empty */;
   (e.Name) e.Names
@@ -62,15 +54,6 @@ LexSort {
 '-' - Word0 comes before Word1
 '+' - Word0 comes after Word1
 '0' - Words are equal
-
-It is tail recursion:
-
-<LexCompare 'Haskell' 'Happiness'>
-<{ '-' = True; '+' = False; '0' = <LexCompare e.Word0 e.Word1>; } <Compare <Ord 'H'> <Ord 'H'>>>
-<{ '-' = True; '+' = False; '0' = <LexCompare e.Word0 e.Word1>; } '0'>
-<LexCompare 'askell' 'appiness'>
-
-so at each step length of the words decreases by 1 and recursion is induced
 */
 LexCompare {
   (/* empty */) /* empty */ = '0';
@@ -121,31 +104,12 @@ FilterGreater {
 }
 
 
-/*
-It is tail recursion:
-
-<StripQuotes '"A" "B" "C" "D" "E" "F"'>
-('A') <StripQuotes '"B" "C" "D" "E" "F"'>
-('A') ('B') <StripQuotes '"C" "D" "E" "F"'>
-...
-('A') ('B') ('C') ('D') ('E') <StripQuotes '"F"'>
-('A') ('B') ('C') ('D') ('E') ('F')
-*/
 StripQuotes {
   /* empty */ = /* empty */;
   ('"' e.Name '"') e.Names = (e.Name) <StripQuotes e.Names>;
 }
 
-/*
-It is tail recursion:
 
-<Split ' ' 'A B C D E F'>
-('A') <Split ' ' 'B C D E F'>
-('A') ('B') <Split ' ' 'C D E F'>
-...
-('A') ('B') ('C') ('D') ('E') <Split 'F'>
-('A') ('B') ('C') ('D') ('E') ('F')
-*/
 Split {
   s.Delim /* empty */ = /* empty */;
   s.Delim e.B s.Delim e.E = (e.B) <Split s.Delim e.E>;

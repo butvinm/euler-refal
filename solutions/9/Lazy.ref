@@ -1,3 +1,9 @@
+/*
+This solution utilize lazy collections (aka generators) to iterate over possible solutions and find the correct one.
+The solution is modular: it has a distinct steps for generating sequence of possible solutions, filtering out incorrect ones and taking the first correct one.
+It is also utilizes functional alternatives to loops and conditionals: map, filter, take, dropWhile.
+*/
+
 *$FROM LibraryEx
 $EXTERN UnBracket, Fetch;
 

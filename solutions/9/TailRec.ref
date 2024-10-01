@@ -1,3 +1,31 @@
+/*
+This solution is based on recursion.
+You can consider recursive function as math induction: you have a base case and an induction step, which must narrow the problem to the base case.
+
+In this particular example we have a base case when a = 0 and b = 0, and on each step a or b is decremented by 1.
+So, eventually we will either find a suitable answer or reach the base case and return None.
+
+Even though this solution does not look like tail recursion, it is tail recursive.
+Unlike other languages, Refal does not require distinct concatenation operation to build a list.
+Instead, it substitute function call with matched sentence, effectively maintaining the same stack frame.
+
+For example, in the following code:
+
+<TailRecSolution>
+<TailRecSolution-A 333>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A <Sub 999 s.A>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A <Sub 999 s.A>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ s.C = <{ '0' = s.A s.B s.C; s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.>C>>>} <Sub 1000 <Add s.A s.B>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ s.C = <{ '0' = s.A s.B s.C; s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.>C>>>} (1000-s.A-s.B)>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr >(1000-s.A-s.B)>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare (s.A^2 + s.B^2) (1000-s.A-s.B)>^2>>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } CompareRes>>
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A (s.B-1)>>
+...
+<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } None>
+<TailRecSolution-A 332>>
+*/
+
 $ENTRY TailRecSolution-9 {
   /* a < b < c, so a is at most (1000 - 3)/3 = 333 */
   = <TailRecSolution-A 333> : {
@@ -34,25 +62,3 @@ TailRecSolution-B {
 Sqr {
   s.A = <Mul s.A s.A>;
 }
-
-/*
-Why it is tail recursion?
-
-This is how Refal machine scope would look like after each step of the computation:
-
-<TailRecSolution>
-<TailRecSolution-A 333>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A <Sub 999 s.A>>>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A <Sub 999 s.A>>>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ s.C = <{ '0' = s.A s.B s.C; s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.>C>>>} <Sub 1000 <Add s.A s.B>>>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ s.C = <{ '0' = s.A s.B s.C; s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr s.>C>>>} (1000-s.A-s.B)>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare <Add <Sqr s.A> <Sqr s.B>> <Sqr >(1000-s.A-s.B)>>>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } <Compare (s.A^2 + s.B^2) (1000-s.A-s.B)>^2>>>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <{ '0' = s.A s.B (1000-s.A-s.B); s._ = <TailRecSolution-B s.A <Sub s.B 1>>; } CompareRes>>
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } <TailRecSolution-B s.A (s.B-1)>>
-...
-<{ None = <TailRecSolution-A <Sub s.A 1>>; e.Result = e.Result; } None>
-<TailRecSolution-A 332>>
-
-So, we end up with a induction step in the tail position of the recursive call.
-*/
