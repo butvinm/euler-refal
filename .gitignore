@@ -2,4 +2,3 @@ build/
 refal-compiler-source/
 *.rasl
 *.rasls
-.vscode/
